@@ -151,8 +151,12 @@ Trang quản lý Atlas cần tài khoản được cấp quyền; không công k
 Kết quả kiểm tra ngày 29/10/2026:
 
 - API công khai: health, danh sách, chi tiết, tìm kiếm, thêm, sửa, xóa; lỗi 400/404/409 đều đạt. Dữ liệu được lưu trên Atlas.
-- Giao diện Render: hiển thị dữ liệu thật, thêm món thử, xem chi tiết, sửa và tìm kiếm đều đạt. Hộp xác nhận xóa chưa được xác nhận tự động do công cụ trình duyệt bị chặn ở hộp thoại; thao tác xóa qua API đã đạt và bản ghi thử đã được dọn.
+- Giao diện Render: hiển thị dữ liệu thật, thêm món thử, xem chi tiết, sửa, tìm kiếm và xóa đều đạt. Hộp xác nhận xóa nằm trong ứng dụng, đã kiểm thử cả Hủy và Xác nhận xóa trên cloud. Các bản ghi thử đã được dọn.
 - Docker backend chạy thật với biến môi trường; frontend container trả HTTP 200 và nạp API_URL lúc khởi động. Cả hai image đã push, trang Docker Hub trả HTTP 200.
 - Repository công khai; lịch sử có commit riêng theo 9 câu. Git guard kiểm tra allowlist và bí mật trước mỗi lần commit/push.
 
 Biểu mẫu nộp bài: https://docs.google.com/forms/d/e/1FAIpQLSc6p2I6a-D8EhovwGKEsi4jxoUC7RtcSRQps8_VysECi5jziw/viewform
+
+### Kiểm tra bố cục với dữ liệu dài
+
+Form dùng 3 cột trên desktop và 2 cột trên điện thoại. Đã kiểm tra riêng ở độ rộng 1366, 1280, 768, 375 và 320 px bằng cách nhập 2.000 ký tự mỗi ô, mô tả khoảng 10.000 ký tự: không tràn ngang trang, kích thước ô nhập không tăng theo nội dung. Ở 320×640, nút lưu nằm trong màn hình khi chưa có thông báo. Mô tả cuộn bên trong khung cố định; bảng cuộn ngang riêng trên màn hình nhỏ. Nội dung dài trong bảng giới hạn 2 dòng, xem đầy đủ qua chi tiết.
