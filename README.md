@@ -115,3 +115,12 @@ docker run --name foods-236435-web -p 5173:80 -e API_URL=http://localhost:5000 p
 Truy cập `http://localhost:5173`. `API_URL` là địa chỉ backend mà trình duyệt truy cập được. Khi triển khai cloud, đặt URL HTTPS công khai của backend; cấu hình được nạp lúc container khởi động.
 
 Có thể chạy hai container bằng `docker compose up -d --build` sau khi cấu hình biến `MONGODB_URI` qua môi trường máy. Compose dùng project name riêng `foods-236435-phantuananh`.
+
+## 7. Frontend trên Render
+
+URL frontend: [web-236435.onrender.com](https://web-236435.onrender.com).
+
+- Static Site: `web-236435`, branch `main`, root directory `frontend`.
+- Build command: `npm ci && npm run build`; publish directory: `dist`.
+- `VITE_API_URL`: `https://api-236435.onrender.com` (đích backend dự kiến; cần kiểm chứng sau khi backend được tạo).
+- Frontend đã deploy Live và trả HTTP 200. Kiểm thử CRUD công khai đang chờ backend được cấu hình biến môi trường và deploy thành công.
