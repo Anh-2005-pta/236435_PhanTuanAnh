@@ -55,8 +55,6 @@ function ChoiceInput({ id, value, onChange, options, placeholder }) {
           }
           if (e.key === 'Enter' && open && active >= 0) { e.preventDefault(); choose(options[active]); }
         }} />
-      <button type="button" className="choice-toggle" aria-label={`Mở lựa chọn ${id === 'category' ? 'loại món' : 'vùng miền'}`}
-        aria-expanded={open} onClick={() => { setOpen(!open); setActive(-1); }}>⌄</button>
     </div>
     {open && <div className="choice-options" id={`${id}-options`} role="listbox" aria-label={id === 'category' ? 'Loại món ăn' : 'Vùng miền'}>
       {options.map((option, i) => <button key={option} id={`${id}-option-${i}`} type="button" role="option"
@@ -98,6 +96,65 @@ export default function App() {
   const newestRow = useRef(null);
   const [newestId, setNewestId] = useState(null);
   const [revealId, setRevealId] = useState(null);
+  const [columnMenu, setColumnMenu] = useState(null);
+  const [columnFilters, setColumnFilters] = useState({ category: '', cuisine: '', quantity: '' });
+  const [columnSort, setColumnSort] = useState(null);
+
+  useEffect(() => {
+    if (!columnMenu) return;
+    const dismiss = e => {
+      if (e.type === 'keydown' ? e.key === 'Escape' : !e.target.closest('.column-menu-host')) setColumnMenu(null);
+    };
+    document.addEventListener('pointerdown', dismiss);
+    document.addEventListener('keydown', dismiss);
+    return () => {
+      document.removeEventListener('pointerdown', dismiss);
+      document.removeEventListener('keydown', dismiss);
+    };
+  }, [columnMenu]);
+
+  const visibleFoods = foods.filter(food =>
+    (!columnFilters.category || food.category === columnFilters.category) &&
+    (!columnFilters.cuisine || food.cuisine === columnFilters.cuisine) &&
+    (!columnFilters.quantity || (columnFilters.quantity === 'available' ? food.quantity > 0 : food.quantity === 0))
+  );
+  if (columnSort) visibleFoods.sort((a, b) => {
+    const { field, direction } = columnSort;
+    const result = field === 'price' || field === 'quantity'
+      ? Number(a[field]) - Number(b[field])
+      : String(a[field]).localeCompare(String(b[field]), 'vi');
+    return direction === 'asc' ? result : -result;
+  });
+
+  function renderColumn(field, label) {
+    const textColumn = field === 'category' || field === 'cuisine';
+    const options = textColumn
+      ? [...new Set(foods.map(food => food[field]))].sort((a, b) => a.localeCompare(b, 'vi')).map(value => ({ value, label: value }))
+      : field === 'quantity' ? [{ value: 'available', label: 'Còn món (> 0)' }, { value: 'empty', label: 'Hết món (= 0)' }] : [];
+    const active = Boolean(columnFilters[field] || columnSort?.field === field);
+    return <th className="column-menu-host" aria-sort={columnSort?.field === field ? (columnSort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}>
+      <button type="button" className={`column-label${active ? ' column-active' : ''}`}
+        aria-haspopup="menu" aria-expanded={columnMenu === field}
+        title={`Lọc / sắp xếp ${label.toLowerCase()}`}
+        onClick={() => setColumnMenu(current => current === field ? null : field)}>{label}</button>
+      {columnMenu === field && <div className="column-menu" role="menu" aria-label={`Lọc và sắp xếp ${label}`}>
+        {options.length > 0 && <>
+          <span className="column-menu-caption">Lọc nhanh</span>
+          {[{ value: '', label: 'Tất cả' }, ...options].map(option => <button type="button" role="menuitemradio"
+            aria-checked={columnFilters[field] === option.value} key={option.value}
+            onClick={() => { setColumnFilters(current => ({ ...current, [field]: option.value })); setColumnMenu(null); }}>
+            {option.label}</button>)}
+        </>}
+        <span className="column-menu-caption">Sắp xếp</span>
+        {[['asc', textColumn ? 'A → Z' : 'Thấp → cao'], ['desc', textColumn ? 'Z → A' : 'Cao → thấp']].map(([direction, text]) =>
+          <button type="button" role="menuitemradio" aria-checked={columnSort?.field === field && columnSort.direction === direction}
+            key={direction} onClick={() => { setColumnSort({ field, direction }); setColumnMenu(null); }}>{text}</button>)}
+        <button type="button" role="menuitem" className="column-menu-reset" onClick={() => {
+          setColumnFilters({ category: '', cuisine: '', quantity: '' }); setColumnSort(null); setColumnMenu(null);
+        }}>Bỏ lọc và sắp xếp</button>
+      </div>}
+    </th>;
+  }
 
   useEffect(() => {
     if (revealId && !loading && newestRow.current) {
@@ -273,6 +330,9 @@ export default function App() {
         ++listRequest.current;
         setSearchInput('');
         setActiveSearch('');
+        setColumnFilters({ category: '', cuisine: '', quantity: '' });
+        setColumnSort(null);
+        setColumnMenu(null);
         setFoods(previous => [payload, ...previous.filter(food => food._id !== payload._id)]);
         setLoading(false);
         setNewestId(payload._id);
@@ -501,7 +561,7 @@ export default function App() {
             <div className="list-toolbar">
               <h2>
                 Danh Sách Món Ăn{' '}
-                <span className="count-badge">{foods.length} món</span>
+                <span className="count-badge">{visibleFoods.length} món</span>
               </h2>
               <form onSubmit={handleSearchSubmit} className="search-bar">
                 <input
@@ -534,10 +594,6 @@ export default function App() {
 
             {loading ? (
               <div className="state-box">Đang tải dữ liệu món ăn từ máy chủ...</div>
-            ) : foods.length === 0 ? (
-              <div className="state-box">
-                Không có món ăn nào phù hợp. Hãy thử từ khóa khác hoặc thêm món ăn mới.
-              </div>
             ) : (
               <div className="table-wrapper">
                 <table className="food-table">
@@ -545,15 +601,16 @@ export default function App() {
                     <tr>
                       <th>Mã</th>
                       <th>Món ăn</th>
-                      <th>Loại</th>
-                      <th>Vùng miền</th>
-                      <th>Giá bán</th>
-                      <th>Số lượng</th>
+                      {renderColumn('category', 'Loại')}
+                      {renderColumn('cuisine', 'Vùng miền')}
+                      {renderColumn('price', 'Giá bán')}
+                      {renderColumn('quantity', 'Số lượng')}
                       <th>Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {foods.map((food) => (
+                    {visibleFoods.length === 0 && <tr><td colSpan={7} className="empty-foods">Không có món ăn phù hợp. Bấm tên cột để đổi hoặc bỏ bộ lọc.</td></tr>}
+                    {visibleFoods.map((food) => (
                       <tr key={food._id || food.foodId}
                         ref={food._id === newestId ? newestRow : null}
                         className={food._id === newestId ? 'new-food-row' : undefined}>
