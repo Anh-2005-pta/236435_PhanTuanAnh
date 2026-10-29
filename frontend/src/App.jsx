@@ -46,7 +46,7 @@ function ChoiceInput({ id, value, onChange, options, placeholder }) {
       <input id={id} name={id} value={value} placeholder={placeholder} required
         role="combobox" aria-autocomplete="list" aria-expanded={open}
         aria-controls={`${id}-options`} aria-activedescendant={open && active >= 0 ? `${id}-option-${active}` : undefined}
-        autoComplete="off" onChange={onChange} onFocus={() => setOpen(true)}
+        autoComplete="off" onChange={onChange} onFocus={() => setOpen(true)} onClick={() => setOpen(true)}
         onKeyDown={e => {
           if (e.key === 'Escape') { setOpen(false); setActive(-1); }
           if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
