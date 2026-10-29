@@ -570,3 +570,28 @@ body { background: #f3f5f2; }
   .detail-info { flex: 1; min-height: 0; padding: 20px; }
   .detail-name { font-size: 23px; margin-bottom: 20px; }
 }
+
+/* Keep the list tools and column headings outside the scrolling food rows. */
+@media (min-width: 901px) {
+  .list-section { display: flex; flex-direction: column; overflow: hidden; }
+  .list-toolbar, .search-indicator { flex: 0 0 auto; }
+  .table-wrapper { flex: 1 1 auto; min-height: 0; overflow: auto; position: relative; }
+  .food-table thead th { position: sticky; top: 0; z-index: 2; background: #f3f6f4;
+    box-shadow: inset 0 -1px #d5dfd9; }
+}
+.food-table { min-width: 800px; border-collapse: separate; border-spacing: 0; }
+.food-table th:nth-child(1) { width: 7%; }
+.food-table th:nth-child(2) { width: 27%; }
+.food-table th:nth-child(3), .food-table th:nth-child(4) { width: 10%; }
+.food-table th:nth-child(5) { width: 12%; }
+.food-table th:nth-child(6) { width: 10%; text-align: center; }
+.food-table th:nth-child(7) { width: 24%; padding-left: 16px; }
+.food-table td:nth-child(6) { text-align: center; padding-left: 12px; padding-right: 16px; }
+.food-table td:nth-child(7) { padding-left: 16px; }
+.food-table th:nth-child(7), .food-table td:nth-child(7) { border-left: 1px solid #e2e8f0; }
+@media (max-width: 900px) {
+  .list-section { display: flex; flex-direction: column; height: 75dvh; min-height: 360px; overflow: hidden; }
+  .list-toolbar, .search-indicator { flex: 0 0 auto; }
+  .table-wrapper { flex: 1; min-height: 0; overflow: auto; }
+  .food-table thead th { position: sticky; top: 0; z-index: 2; background: #f3f6f4; box-shadow: inset 0 -1px #d5dfd9; }
+}
