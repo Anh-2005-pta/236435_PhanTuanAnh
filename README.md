@@ -102,3 +102,16 @@ docker run --name foods-236435-api --env-file ./backend/.env -e PORT=5000 -p 500
 ```
 
 Tạo `backend/.env` riêng theo mẫu trước khi chạy. Image chỉ chứa mã nguồn ứng dụng và thư viện, không chứa `.env`. Kiểm tra `http://localhost:5000/health` và `http://localhost:5000/api/foods`.
+
+## 6. Chạy frontend bằng Docker
+
+Image: [phantuananhnct/frontend](https://hub.docker.com/r/phantuananhnct/frontend).
+
+```bash
+docker build -t phantuananhnct/frontend:latest ./frontend
+docker run --name foods-236435-web -p 5173:80 -e API_URL=http://localhost:5000 phantuananhnct/frontend:latest
+```
+
+Truy cập `http://localhost:5173`. `API_URL` là địa chỉ backend mà trình duyệt truy cập được. Khi triển khai cloud, đặt URL HTTPS công khai của backend; cấu hình được nạp lúc container khởi động.
+
+Có thể chạy hai container bằng `docker compose up -d --build` sau khi cấu hình biến `MONGODB_URI` qua môi trường máy. Compose dùng project name riêng `foods-236435-phantuananh`.
