@@ -134,3 +134,25 @@ URL API: [api-236435.onrender.com](https://api-236435.onrender.com); [kiểm tra
 - MongoDB Atlas: Project `Project_236435_PhanTuanAnh`, cluster Free `Cluster0`, database `236435_PhanTuanAnh`, collection `foods`.
 - API công khai đã qua kiểm thử health, danh sách 5 món mẫu, chi tiết, tìm kiếm, thêm/sửa/xóa và mã lỗi 400/404/409.
 - Gói Free có thể cần thời gian khởi động lại sau khi không có truy cập.
+
+## 9. Thông tin nộp bài và kiểm thử
+
+| Trường | Đường dẫn / định danh |
+|---|---|
+| Link_GitHub | https://github.com/Anh-2005-pta/236435_PhanTuanAnh |
+| Link_Docker_Backend | https://hub.docker.com/r/phantuananhnct/backend |
+| Link_Docker_Frontend | https://hub.docker.com/r/phantuananhnct/frontend |
+| Link_Render_App | https://web-236435.onrender.com |
+| Link_Render_API | https://api-236435.onrender.com |
+| Link_Data_MongoDB | https://cloud.mongodb.com/v2/6ae2e9540a48fbd3acd5f31f#/explorer — database `236435_PhanTuanAnh`, collection `foods` |
+
+Trang quản lý Atlas cần tài khoản được cấp quyền; không công khai chuỗi kết nối hoặc mật khẩu để nộp bài.
+
+Kết quả kiểm tra ngày 29/10/2026:
+
+- API công khai: health, danh sách, chi tiết, tìm kiếm, thêm, sửa, xóa; lỗi 400/404/409 đều đạt. Dữ liệu được lưu trên Atlas.
+- Giao diện Render: hiển thị dữ liệu thật, thêm món thử, xem chi tiết, sửa và tìm kiếm đều đạt. Hộp xác nhận xóa chưa được xác nhận tự động do công cụ trình duyệt bị chặn ở hộp thoại; thao tác xóa qua API đã đạt và bản ghi thử đã được dọn.
+- Docker backend chạy thật với biến môi trường; frontend container trả HTTP 200 và nạp API_URL lúc khởi động. Cả hai image đã push, trang Docker Hub trả HTTP 200.
+- Repository công khai; lịch sử có commit riêng theo 9 câu. Git guard kiểm tra allowlist và bí mật trước mỗi lần commit/push.
+
+Biểu mẫu nộp bài: https://docs.google.com/forms/d/e/1FAIpQLSc6p2I6a-D8EhovwGKEsi4jxoUC7RtcSRQps8_VysECi5jziw/viewform
