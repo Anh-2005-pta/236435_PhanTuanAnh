@@ -251,9 +251,6 @@ export default function App() {
       <header className="app-header">
         <div>
           <h1>Hệ Thống Quản Lý Món Ăn</h1>
-          <p className="subtitle">
-            MSSV: <strong>236435</strong> — Họ tên: <strong>Phan Tuấn Anh</strong>
-          </p>
         </div>
       </header>
 

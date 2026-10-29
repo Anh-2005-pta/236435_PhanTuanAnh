@@ -159,4 +159,4 @@ Biểu mẫu nộp bài: https://docs.google.com/forms/d/e/1FAIpQLSc6p2I6a-D8Eho
 
 ### Kiểm tra bố cục với dữ liệu dài
 
-Form dùng 3 cột trên desktop và 2 cột trên điện thoại. Đã kiểm tra riêng ở độ rộng 1366, 1280, 768, 375 và 320 px bằng cách nhập 2.000 ký tự mỗi ô, mô tả khoảng 10.000 ký tự: không tràn ngang trang, kích thước ô nhập không tăng theo nội dung. Ở 320×640, nút lưu nằm trong màn hình khi chưa có thông báo. Mô tả cuộn bên trong khung cố định; bảng cuộn ngang riêng trên màn hình nhỏ. Nội dung dài trong bảng giới hạn 2 dòng, xem đầy đủ qua chi tiết.
+Desktop dùng tiêu đề cố định 52px; form khóa bên trái 30% chiều ngang, cao hết phần còn lại; danh sách bên phải 70%. Ô nhập bố trí 2 cột trong form. Màn hình hẹp chuyển sang bố cục xếp dọc. Đã kiểm tra riêng ở độ rộng 1366, 1280, 768, 375 và 320 px bằng cách nhập 2.000 ký tự mỗi ô, mô tả khoảng 10.000 ký tự: không tràn ngang trang, kích thước ô nhập không tăng theo nội dung. Ở 320×640, nút lưu nằm trong màn hình khi chưa có thông báo. Mô tả cuộn bên trong khung cố định; bảng cuộn ngang riêng trên màn hình nhỏ. Nội dung dài trong bảng giới hạn 2 dòng, xem đầy đủ qua chi tiết.
