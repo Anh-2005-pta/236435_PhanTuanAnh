@@ -595,3 +595,42 @@ body { background: #f3f5f2; }
   .table-wrapper { flex: 1; min-height: 0; overflow: auto; }
   .food-table thead th { position: sticky; top: 0; z-index: 2; background: #f3f6f4; box-shadow: inset 0 -1px #d5dfd9; }
 }
+
+/* Edge-to-edge image and equal detail halves; only the description may scroll. */
+.modal-card { position: relative; }
+.detail-close { position: absolute; top: 12px; right: 12px; z-index: 3; width: 34px; height: 34px;
+  border-radius: 50%; background: #edf3ef; color: #173b32; }
+.detail-body { height: 100%; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.detail-info { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 18px; padding: 24px; overflow: hidden; min-height: 0; }
+.detail-name { font-size: 28px; line-height: 1.2; margin: 0; padding-right: 30px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.detail-grid { margin: 0; gap: 12px 18px; }
+.detail-grid dt { font-size: 12px; line-height: 18px; }
+.detail-grid dd { font-size: 15px; line-height: 21px; margin-top: 3px; }
+.detail-block { margin: 0; }
+.detail-block h4 { margin: 0 0 7px; font-size: 13px; line-height: 19px; }
+.detail-info .tag { padding: 3px 8px; font-size: 12px; line-height: 18px; }
+.detail-description { display: flex; flex-direction: column; min-height: 0; }
+.detail-description p { min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0;
+  line-height: 1.6; font-size: 14px; padding-right: 6px; }
+.detail-description p:focus-visible { outline: 2px solid #327c65; outline-offset: 2px; }
+@media (max-height: 650px) and (min-width: 801px) {
+  .detail-info { padding: 18px; gap: 12px; }
+  .detail-name { font-size: 22px; }
+  .detail-grid { gap: 8px 14px; }
+  .detail-grid dt { font-size: 11px; line-height: 16px; }
+  .detail-grid dd { font-size: 13px; line-height: 18px; }
+  .detail-info .tag { font-size: 11px; padding: 2px 7px; line-height: 16px; }
+  .detail-description p { font-size: 13px; }
+}
+@media (max-width: 800px) {
+  .detail-visual { height: 28dvh; flex-basis: 28dvh; }
+  .detail-info { padding: 16px; gap: 12px; }
+  .detail-close { background: #ffffffed; }
+  .detail-name { font-size: 21px; }
+  .detail-grid { gap: 8px 12px; }
+  .detail-grid dt { font-size: 11px; line-height: 16px; }
+  .detail-grid dd { font-size: 13px; line-height: 18px; }
+  .detail-info .tag { font-size: 11px; line-height: 16px; padding: 2px 6px; }
+}

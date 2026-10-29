@@ -623,20 +623,23 @@ export default function App() {
               onKeyDown={e => {
                 if (e.key === 'Escape' && !detailLoading) setSelectedFood(null);
                 if (e.key === 'Tab') {
-                  e.preventDefault();
-                  detailPanel.current?.querySelector('button')?.focus();
+                  const stops = [...detailPanel.current.querySelectorAll('button, [tabindex="0"]')];
+                  const first = stops[0], last = stops[stops.length - 1];
+                  if (e.shiftKey && (document.activeElement === first || document.activeElement === detailPanel.current)) {
+                    e.preventDefault(); last?.focus();
+                  } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault(); first?.focus();
+                  }
                 }
               }} onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <h3 id="food-detail-title">Chi Tiết Món Ăn</h3>
                 <button
                   type="button"
-                  className="alert-close"
+                  className="alert-close detail-close"
+                  aria-label="Đóng món ăn"
                   onClick={() => setSelectedFood(null)}
                 >
                   ×
                 </button>
-              </div>
               {detailLoading ? (
                 <div className="state-box">Đang tải thông tin chi tiết...</div>
               ) : (
@@ -656,7 +659,7 @@ export default function App() {
                     ) : <span className="image-placeholder">Chưa có hình ảnh món ăn</span>}
                     </div>
                     <div className="detail-info">
-                    <h2 className="detail-name">{selectedFood.name}</h2>
+                    <h2 id="food-detail-title" className="detail-name" title={selectedFood.name}>{selectedFood.name}</h2>
                     <dl className="detail-grid">
                       <div>
                         <dt>Mã món ăn (foodId)</dt>
@@ -694,9 +697,9 @@ export default function App() {
                           ))}
                       </div>
                     </div>
-                    <div className="detail-block">
+                    <div className="detail-block detail-description">
                       <h4>Mô tả món ăn</h4>
-                      <p>{selectedFood.description || 'Chưa có mô tả chi tiết.'}</p>
+                      <p tabIndex={0} role="region" aria-label="Mô tả món ăn">{selectedFood.description || 'Chưa có mô tả chi tiết.'}</p>
                     </div>
                     </div>
                   </div>
