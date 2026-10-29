@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 const rawApiUrl =
   (typeof window !== 'undefined' && window.__APP_CONFIG__ && window.__APP_CONFIG__.API_URL) ||
@@ -30,6 +31,42 @@ function shortText(value) {
   return text.length > 48 ? `${text.slice(0, 48)}…` : text;
 }
 
+function ChoiceInput({ id, value, onChange, options, placeholder }) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  function choose(option) {
+    onChange({ target: { name: id, value: option } });
+    setOpen(false);
+    setActive(-1);
+  }
+  return <div className="choice-field" onBlur={e => {
+    if (!e.currentTarget.contains(e.relatedTarget)) setOpen(false);
+  }}>
+    <div className="choice-control">
+      <input id={id} name={id} value={value} placeholder={placeholder} required
+        role="combobox" aria-autocomplete="list" aria-expanded={open}
+        aria-controls={`${id}-options`} aria-activedescendant={open && active >= 0 ? `${id}-option-${active}` : undefined}
+        autoComplete="off" onChange={onChange} onFocus={() => setOpen(true)}
+        onKeyDown={e => {
+          if (e.key === 'Escape') { setOpen(false); setActive(-1); }
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault(); setOpen(true);
+            setActive(i => e.key === 'ArrowDown' ? (i + 1) % options.length : (i <= 0 ? options.length - 1 : i - 1));
+          }
+          if (e.key === 'Enter' && open && active >= 0) { e.preventDefault(); choose(options[active]); }
+        }} />
+      <button type="button" className="choice-toggle" aria-label={`Mở lựa chọn ${id === 'category' ? 'loại món' : 'vùng miền'}`}
+        aria-expanded={open} onClick={() => { setOpen(!open); setActive(-1); }}>⌄</button>
+    </div>
+    {open && <div className="choice-options" id={`${id}-options`} role="listbox" aria-label={id === 'category' ? 'Loại món ăn' : 'Vùng miền'}>
+      {options.map((option, i) => <button key={option} id={`${id}-option-${i}`} type="button" role="option"
+        aria-selected={option === value} className={active === i ? 'choice-active' : ''}
+        onClick={() => choose(option)}>{option}</button>)}
+      <p>Hoặc nhập giá trị khác vào ô phía trên</p>
+    </div>}
+  </div>;
+}
+
 export default function App() {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +79,15 @@ export default function App() {
 
   const [selectedFood, setSelectedFood] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const detailPanel = useRef(null);
+  const showingDetails = Boolean(detailLoading || selectedFood);
+
+  useEffect(() => {
+    if (!showingDetails) return;
+    const previousFocus = document.activeElement;
+    detailPanel.current?.focus();
+    return () => previousFocus?.focus();
+  }, [showingDetails]);
 
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
@@ -337,10 +383,9 @@ export default function App() {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="category">Loại món ăn *</label>
-                  <input
+                  <ChoiceInput
                     id="category"
-                    name="category"
-                    type="text"
+                    options={[...new Set(['Món nước', 'Món cơm', 'Món khô', 'Khai vị', 'Món chay', 'Tráng miệng', 'Đồ uống', ...foods.map(f => f.category)])]}
                     placeholder="VD: Món khô / Món nước / Khai vị"
                     value={formData.category}
                     onChange={handleChange}
@@ -349,10 +394,9 @@ export default function App() {
                 </div>
                 <div className="form-group">
                   <label htmlFor="cuisine">Ẩm thực / Vùng miền *</label>
-                  <input
+                  <ChoiceInput
                     id="cuisine"
-                    name="cuisine"
-                    type="text"
+                    options={[...new Set(['Miền Bắc', 'Miền Trung', 'Miền Nam', 'Quốc tế', ...foods.map(f => f.cuisine)])]}
                     placeholder="VD: Miền Bắc / Miền Trung / Miền Nam"
                     value={formData.cuisine}
                     onChange={handleChange}
@@ -568,16 +612,23 @@ export default function App() {
           </section>
         </div>
 
-        {(detailLoading || selectedFood) && (
+        {(detailLoading || selectedFood) && createPortal(
           <div
             className="modal-backdrop"
             onClick={() => {
               if (!detailLoading) setSelectedFood(null);
             }}
           >
-            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-card" ref={detailPanel} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="food-detail-title"
+              onKeyDown={e => {
+                if (e.key === 'Escape' && !detailLoading) setSelectedFood(null);
+                if (e.key === 'Tab') {
+                  e.preventDefault();
+                  detailPanel.current?.querySelector('button')?.focus();
+                }
+              }} onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h3>Chi Tiết Món Ăn</h3>
+                <h3 id="food-detail-title">Chi Tiết Món Ăn</h3>
                 <button
                   type="button"
                   className="alert-close"
@@ -591,16 +642,21 @@ export default function App() {
               ) : (
                 selectedFood && (
                   <div className="detail-body">
-                    {selectedFood.imageUrl && (
+                    <div className="detail-visual">
+                    {selectedFood.imageUrl ? (
                       <img
                         src={selectedFood.imageUrl}
                         alt={selectedFood.name}
                         className="detail-image"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement.classList.add('image-unavailable');
                         }}
                       />
-                    )}
+                    ) : <span className="image-placeholder">Chưa có hình ảnh món ăn</span>}
+                    </div>
+                    <div className="detail-info">
+                    <h2 className="detail-name">{selectedFood.name}</h2>
                     <dl className="detail-grid">
                       <div>
                         <dt>Mã món ăn (foodId)</dt>
@@ -642,11 +698,12 @@ export default function App() {
                       <h4>Mô tả món ăn</h4>
                       <p>{selectedFood.description || 'Chưa có mô tả chi tiết.'}</p>
                     </div>
+                    </div>
                   </div>
                 )
               )}
             </div>
-          </div>
+          </div>, document.body
         )}
         <dialog ref={deleteDialog} className="delete-dialog" aria-labelledby="delete-title"
           aria-describedby="delete-description" onCancel={(e) => {
