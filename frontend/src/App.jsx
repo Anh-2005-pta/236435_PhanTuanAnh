@@ -31,6 +31,34 @@ function shortText(value) {
   return text.length > 48 ? `${text.slice(0, 48)}…` : text;
 }
 
+function imageSource(value) {
+  try {
+    const url = new URL(String(value || '').trim());
+    const host = url.hostname.toLowerCase();
+    const embedded = (host === 'bing.com' || host.endsWith('.bing.com')) ? url.searchParams.get('mediaurl')
+      : /^([a-z0-9-]+\.)?google\.[a-z.]+$/.test(host) ? url.searchParams.get('imgurl') : null;
+    const direct = embedded ? new URL(embedded) : url;
+    return ['http:', 'https:'].includes(direct.protocol) ? direct.href : '';
+  } catch { return ''; }
+}
+
+function FoodImage({ url, name, large = false }) {
+  const src = imageSource(url);
+  const [status, setStatus] = useState(src ? 'loading' : 'empty');
+  const message = status === 'loading' ? 'Đang tải ảnh…' : status === 'empty' ? 'Chưa có ảnh' : 'Không tải được ảnh';
+  return <div className={`food-image-frame ${large ? 'image-large' : 'image-thumb'} image-${status}`} aria-busy={status === 'loading'}>
+    {status !== 'loaded' && <span className="image-fallback" role="img" aria-label={`${message}: ${name}`}>
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.3">
+        <rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8" cy="8" r="1.5" />
+        <path d="m3 17 5-5 4 4 3-3 6 6" />
+      </svg>
+      {large && <span>{message}</span>}
+    </span>}
+    {src && <img key={src} src={src} alt={name} referrerPolicy="no-referrer"
+      className="food-image-content" onLoad={() => setStatus('loaded')} onError={() => setStatus('error')} />}
+  </div>;
+}
+
 function ChoiceInput({ id, value, onChange, options, placeholder }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -285,7 +313,7 @@ export default function App() {
       price: formData.price === '' ? '' : Number(formData.price),
       quantity: formData.quantity === '' ? '' : Number(formData.quantity),
       description: formData.description.trim(),
-      imageUrl: formData.imageUrl.trim(),
+      imageUrl: imageSource(formData.imageUrl) || formData.imageUrl.trim(),
     };
 
     setSubmitting(true);
@@ -520,6 +548,10 @@ export default function App() {
                   placeholder="https://example.com/food.jpg"
                   value={formData.imageUrl}
                   onChange={handleChange}
+                  onBlur={() => {
+                    const direct = imageSource(formData.imageUrl);
+                    if (direct && direct !== formData.imageUrl) setFormData(previous => ({ ...previous, imageUrl: direct }));
+                  }}
                 />
               </div>
 
@@ -617,16 +649,7 @@ export default function App() {
                         <td className="code-cell"><span className="cell-text" title={food.foodId}>{food.foodId}</span></td>
                         <td>
                           <div className="food-title-cell">
-                            {food.imageUrl && (
-                              <img
-                                src={food.imageUrl}
-                                alt={food.name}
-                                className="food-thumb"
-                                onError={(e) => {
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                              />
-                            )}
+                            <FoodImage key={food.imageUrl || 'empty'} url={food.imageUrl} name={food.name} />
                             <span className="cell-text" title={food.name}>{food.name}</span>
                             {food._id === newestId && <span className="new-food-badge">Vừa thêm</span>}
                           </div>
@@ -703,17 +726,7 @@ export default function App() {
                 selectedFood && (
                   <div className="detail-body">
                     <div className="detail-visual">
-                    {selectedFood.imageUrl ? (
-                      <img
-                        src={selectedFood.imageUrl}
-                        alt={selectedFood.name}
-                        className="detail-image"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement.classList.add('image-unavailable');
-                        }}
-                      />
-                    ) : <span className="image-placeholder">Chưa có hình ảnh món ăn</span>}
+                    <FoodImage key={selectedFood.imageUrl || 'empty'} url={selectedFood.imageUrl} name={selectedFood.name} large />
                     </div>
                     <div className="detail-info">
                     <h2 id="food-detail-title" className="detail-name" title={selectedFood.name}>{selectedFood.name}</h2>
