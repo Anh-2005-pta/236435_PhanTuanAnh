@@ -452,6 +452,10 @@ body { background: #f3f5f2; }
 .food-title-cell { min-width: 0; align-items: flex-start; }
 .food-title-cell span { min-width: 0; overflow-wrap: anywhere; }
 .cell-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+.new-food-row { background: #e5f3e9; scroll-margin-block: 70px; }
+.new-food-row td:first-child { box-shadow: inset 4px 0 #327c65; }
+.new-food-badge { flex: 0 0 auto; padding: 2px 6px; border-radius: 4px; background: #24634f; color: white; font-size: 10px; white-space: nowrap; }
+.new-food-row .food-title-cell { flex-wrap: wrap; }
 .food-thumb { flex: 0 0 42px; }
 .price-cell { white-space: normal; overflow-wrap: anywhere; }
 .row-actions { flex-wrap: wrap; white-space: normal; }

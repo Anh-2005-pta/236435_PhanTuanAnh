@@ -48,6 +48,20 @@ export default function App() {
   const [pendingDelete, setPendingDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const deleteDialog = useRef(null);
+  const listRequest = useRef(0);
+  const newestRow = useRef(null);
+  const [newestId, setNewestId] = useState(null);
+  const [revealId, setRevealId] = useState(null);
+
+  useEffect(() => {
+    if (revealId && !loading && newestRow.current) {
+      newestRow.current.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+        block: 'center', inline: 'nearest',
+      });
+      setRevealId(null);
+    }
+  }, [foods, loading, revealId]);
 
   useEffect(() => {
     const dialog = deleteDialog.current;
@@ -55,8 +69,9 @@ export default function App() {
     if (!pendingDelete && dialog.open) dialog.close();
   }, [pendingDelete]);
 
-  async function fetchFoods(keyword = activeSearch) {
-    setLoading(true);
+  async function fetchFoods(keyword = activeSearch, { quiet = false, created = null } = {}) {
+    const request = ++listRequest.current;
+    if (!quiet) setLoading(true);
     setErrorMsg('');
     try {
       const query = keyword.trim()
@@ -69,12 +84,15 @@ export default function App() {
           (payload && payload.message) || `Không thể tải danh sách món ăn (HTTP ${response.status}).`
         );
       }
+      if (request !== listRequest.current) return;
       const list = Array.isArray(payload) ? payload : (payload && payload.data) || [];
-      setFoods(list);
+      const refreshed = created ? [created, ...list.filter(food => food._id !== created._id)] : list;
+      refreshed.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      setFoods(refreshed);
     } catch (err) {
-      setErrorMsg(err.message || 'Không thể kết nối đến Backend API.');
+      if (request === listRequest.current) setErrorMsg(err.message || 'Không thể kết nối đến Backend API.');
     } finally {
-      setLoading(false);
+      if (request === listRequest.current) setLoading(false);
     }
   }
 
@@ -202,7 +220,19 @@ export default function App() {
         setSelectedFood(payload);
       }
 
-      await fetchFoods(activeSearch);
+      if (isEditing) {
+        await fetchFoods(activeSearch);
+      } else {
+        // Show the confirmed server record immediately, even with a previous search in flight.
+        ++listRequest.current;
+        setSearchInput('');
+        setActiveSearch('');
+        setFoods(previous => [payload, ...previous.filter(food => food._id !== payload._id)]);
+        setLoading(false);
+        setNewestId(payload._id);
+        setRevealId(payload._id);
+        void fetchFoods('', { quiet: true, created: payload });
+      }
     } catch (err) {
       setErrorMsg(err.message || 'Không thể lưu thông tin món ăn.');
     } finally {
@@ -480,7 +510,9 @@ export default function App() {
                   </thead>
                   <tbody>
                     {foods.map((food) => (
-                      <tr key={food._id || food.foodId}>
+                      <tr key={food._id || food.foodId}
+                        ref={food._id === newestId ? newestRow : null}
+                        className={food._id === newestId ? 'new-food-row' : undefined}>
                         <td className="code-cell"><span className="cell-text" title={food.foodId}>{food.foodId}</span></td>
                         <td>
                           <div className="food-title-cell">
@@ -495,6 +527,7 @@ export default function App() {
                               />
                             )}
                             <span className="cell-text" title={food.name}>{food.name}</span>
+                            {food._id === newestId && <span className="new-food-badge">Vừa thêm</span>}
                           </div>
                         </td>
                         <td><span className="cell-text" title={food.category}>{food.category}</span></td>
