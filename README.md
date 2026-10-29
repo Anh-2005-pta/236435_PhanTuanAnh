@@ -91,3 +91,14 @@ cd 236435_PhanTuanAnh
    npm run dev
    ```
    Truy cập giao diện tại `http://localhost:5173`.
+
+## 5. Chạy backend bằng Docker
+
+Image: [phantuananhnct/backend](https://hub.docker.com/r/phantuananhnct/backend).
+
+```bash
+docker build -t phantuananhnct/backend:latest ./backend
+docker run --name foods-236435-api --env-file ./backend/.env -e PORT=5000 -p 5000:5000 phantuananhnct/backend:latest
+```
+
+Tạo `backend/.env` riêng theo mẫu trước khi chạy. Image chỉ chứa mã nguồn ứng dụng và thư viện, không chứa `.env`. Kiểm tra `http://localhost:5000/health` và `http://localhost:5000/api/foods`.
