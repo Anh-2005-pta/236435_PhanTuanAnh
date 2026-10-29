@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const rawApiUrl =
   (typeof window !== 'undefined' && window.__APP_CONFIG__ && window.__APP_CONFIG__.API_URL) ||
@@ -25,6 +25,11 @@ function formatCurrency(value) {
   return `${num.toLocaleString('vi-VN')} ₫`;
 }
 
+function shortText(value) {
+  const text = String(value || '');
+  return text.length > 48 ? `${text.slice(0, 48)}…` : text;
+}
+
 export default function App() {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +45,15 @@ export default function App() {
 
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const deleteDialog = useRef(null);
+
+  useEffect(() => {
+    const dialog = deleteDialog.current;
+    if (pendingDelete && !dialog.open) dialog.showModal();
+    if (!pendingDelete && dialog.open) dialog.close();
+  }, [pendingDelete]);
 
   async function fetchFoods(keyword = activeSearch) {
     setLoading(true);
@@ -178,8 +192,8 @@ export default function App() {
 
       setSuccessMsg(
         isEditing
-          ? `Đã cập nhật món ăn "${payload.name}" (${payload.foodId}) thành công.`
-          : `Đã thêm món ăn mới "${payload.name}" (${payload.foodId}) thành công.`
+          ? `Đã cập nhật món ăn "${shortText(payload.name)}" thành công.`
+          : `Đã thêm món ăn "${shortText(payload.name)}" thành công.`
       );
       setEditingId(null);
       setFormData(EMPTY_FORM);
@@ -197,11 +211,8 @@ export default function App() {
   }
 
   async function handleDelete(food) {
-    const confirmed = window.confirm(
-      `Bạn có chắc chắn muốn xóa món ăn "${food.name}" (${food.foodId}) không?`
-    );
-    if (!confirmed) return;
-
+    if (deleting) return;
+    setDeleting(true);
     setErrorMsg('');
     setSuccessMsg('');
     try {
@@ -217,7 +228,7 @@ export default function App() {
       }
 
       setSuccessMsg(
-        (payload && payload.message) || `Đã xóa món ăn "${food.name}" (${food.foodId}) thành công.`
+        `Đã xóa món ăn "${shortText(food.name)}" thành công.`
       );
       if (selectedFood && (selectedFood._id === food._id || selectedFood.foodId === food.foodId)) {
         setSelectedFood(null);
@@ -227,8 +238,11 @@ export default function App() {
         setFormData(EMPTY_FORM);
       }
       await fetchFoods(activeSearch);
+      setPendingDelete(null);
     } catch (err) {
       setErrorMsg(err.message || 'Lỗi khi xóa món ăn.');
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -238,8 +252,7 @@ export default function App() {
         <div>
           <h1>Hệ Thống Quản Lý Món Ăn</h1>
           <p className="subtitle">
-            MSSV: <strong>236435</strong> — Họ tên: <strong>Phan Tuấn Anh</strong> | Kết nối API:{' '}
-            <code>{API_BASE_URL}</code>
+            MSSV: <strong>236435</strong> — Họ tên: <strong>Phan Tuấn Anh</strong>
           </p>
         </div>
       </header>
@@ -329,7 +342,7 @@ export default function App() {
                     name="price"
                     type="number"
                     min="0"
-                    step="1000"
+                    step="1"
                     placeholder="VD: 45000"
                     value={formData.price}
                     onChange={handleChange}
@@ -354,7 +367,7 @@ export default function App() {
 
               <div className="form-group">
                 <label htmlFor="ingredientsText">
-                  Danh sách nguyên liệu (phân tách bằng dấu phẩy) *
+                  Nguyên liệu (dấu phẩy) *
                 </label>
                 <input
                   id="ingredientsText"
@@ -471,7 +484,7 @@ export default function App() {
                   <tbody>
                     {foods.map((food) => (
                       <tr key={food._id || food.foodId}>
-                        <td className="code-cell">{food.foodId}</td>
+                        <td className="code-cell"><span className="cell-text" title={food.foodId}>{food.foodId}</span></td>
                         <td>
                           <div className="food-title-cell">
                             {food.imageUrl && (
@@ -484,11 +497,11 @@ export default function App() {
                                 }}
                               />
                             )}
-                            <span>{food.name}</span>
+                            <span className="cell-text" title={food.name}>{food.name}</span>
                           </div>
                         </td>
-                        <td>{food.category}</td>
-                        <td>{food.cuisine}</td>
+                        <td><span className="cell-text" title={food.category}>{food.category}</span></td>
+                        <td><span className="cell-text" title={food.cuisine}>{food.cuisine}</span></td>
                         <td className="price-cell">{formatCurrency(food.price)}</td>
                         <td>{food.quantity}</td>
                         <td>
@@ -510,7 +523,7 @@ export default function App() {
                             <button
                               type="button"
                               className="btn btn-small btn-danger"
-                              onClick={() => handleDelete(food)}
+                              onClick={() => setPendingDelete(food)}
                             >
                               Xóa
                             </button>
@@ -605,6 +618,20 @@ export default function App() {
             </div>
           </div>
         )}
+        <dialog ref={deleteDialog} className="delete-dialog" aria-labelledby="delete-title"
+          aria-describedby="delete-description" onCancel={(e) => {
+            if (deleting) e.preventDefault();
+            else setPendingDelete(null);
+          }}>
+          <h2 id="delete-title">Xóa món ăn?</h2>
+          <p id="delete-description">Món <strong>{pendingDelete?.name}</strong> (<span>{pendingDelete?.foodId}</span>) sẽ bị xóa khỏi danh sách.</p>
+          <div className="form-actions">
+            <button type="button" className="btn btn-secondary" autoFocus disabled={deleting}
+              onClick={() => setPendingDelete(null)}>Hủy</button>
+            <button type="button" className="btn btn-danger" disabled={deleting}
+              onClick={() => handleDelete(pendingDelete)}>{deleting ? 'Đang xóa…' : 'Xác nhận xóa'}</button>
+          </div>
+        </dialog>
       </main>
     </div>
   );

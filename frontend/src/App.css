@@ -404,3 +404,79 @@ body {
   border-radius: 999px;
   font-size: 0.84rem;
 }
+
+/* Keep the editor compact and constrain every grid child, including long values. */
+:root { background: #f3f5f2; color: #23362f; }
+body { background: #f3f5f2; }
+.app-header { background: #173b32; padding: 16px 24px; box-shadow: none; }
+.app-header h1 { font-size: 22px; }
+.subtitle { font-size: 13px; margin-top: 4px; }
+.main-container { max-width: 1480px; padding: 20px 24px; }
+.layout-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.card { min-width: 0; padding: 18px; border-radius: 12px; box-shadow: none; }
+.card h2 { font-size: 17px; margin-bottom: 14px; }
+.food-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 18px; }
+.form-row { display: contents; }
+.form-group { min-width: 0; gap: 4px; }
+.form-group label { font-size: 12px; line-height: 18px; }
+.form-group input, .form-group textarea, .search-bar input {
+  display: block; width: 100%; min-width: 0; max-width: 100%; height: 38px;
+  padding: 8px 10px; line-height: 20px; font-size: 14px; background: #fcfdfb;
+}
+.form-group textarea { resize: none; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.form-group input:focus, .form-group textarea:focus, .search-bar input:focus {
+  outline: 2px solid #327c65; outline-offset: 1px; border-color: #327c65;
+}
+.form-actions { grid-column: 1 / -1; margin: 2px 0 0; justify-content: flex-end; flex-wrap: wrap; }
+.btn { min-height: 38px; }
+.btn-primary { background: #24634f; }
+.btn-info { background: #e5f0eb; color: #225b48; }
+.btn-warning { background: #fff1db; color: #865311; }
+.btn-danger { background: #b63535; }
+.btn:focus-visible, .alert-close:focus-visible { outline: 3px solid #408c74; outline-offset: 3px; }
+.alert, .alert span, .search-indicator, .detail-block, .detail-grid > div, .tag { min-width: 0; overflow-wrap: anywhere; }
+.alert-close { flex: 0 0 auto; }
+.alert span { max-height: 4.5em; overflow: auto; }
+.list-toolbar h2 { flex-wrap: wrap; }
+.search-bar { min-width: 0; width: 100%; flex: 1 1 320px; max-width: 540px; }
+.search-bar input { flex: 1 1 0; }
+.search-bar .btn { flex: 0 0 auto; }
+.food-table { table-layout: fixed; }
+.food-table th:nth-child(1) { width: 12%; }
+.food-table th:nth-child(2) { width: 25%; }
+.food-table th:nth-child(3), .food-table th:nth-child(4) { width: 12%; }
+.food-table th:nth-child(5) { width: 13%; }
+.food-table th:nth-child(6) { width: 8%; }
+.food-table th:nth-child(7) { width: 18%; }
+.food-table td { overflow-wrap: anywhere; vertical-align: top; }
+.food-title-cell { min-width: 0; align-items: flex-start; }
+.food-title-cell span { min-width: 0; overflow-wrap: anywhere; }
+.cell-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+.food-thumb { flex: 0 0 42px; }
+.price-cell { white-space: normal; overflow-wrap: anywhere; }
+.row-actions { flex-wrap: wrap; white-space: normal; }
+.detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.detail-grid dd, .detail-block p { overflow-wrap: anywhere; }
+.delete-dialog { width: min(460px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow: auto;
+  padding: 24px; border: 1px solid #d8e2dc; border-radius: 14px; color: #23362f; }
+.delete-dialog::backdrop { background: rgb(14 32 25 / 55%); }
+.delete-dialog h2 { margin: 0 0 12px; font-size: 20px; }
+.delete-dialog p { overflow-wrap: anywhere; line-height: 1.6; }
+.delete-dialog .form-actions { margin-top: 22px; }
+@media (max-width: 800px) {
+  .main-container { padding: 14px; }
+  .food-form { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; }
+  .food-table { min-width: 720px; }
+  .table-wrapper { max-width: 100%; }
+}
+@media (max-width: 480px) {
+  .app-header { padding: 14px; }
+  .app-header h1 { font-size: 19px; }
+  .card { padding: 12px; }
+  .food-form { gap: 8px 10px; }
+  .form-group label { min-height: 32px; font-size: 11px; line-height: 16px; }
+  .form-group input, .form-group textarea { height: 36px; padding: 7px 8px; }
+  .search-bar { flex-wrap: wrap; }
+  .search-bar input { flex-basis: 100%; }
+  .form-actions .btn { flex: 1; }
+}
