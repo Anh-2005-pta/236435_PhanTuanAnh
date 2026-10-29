@@ -1,0 +1,17 @@
+{
+  "name": "food-management-backend-236435",
+  "version": "1.0.0",
+  "description": "Backend RESTful API quan ly mon an - 236435 Phan Tuan Anh",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/seed.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.10.1"
+  }
+}
