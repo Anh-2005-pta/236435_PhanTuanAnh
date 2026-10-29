@@ -122,5 +122,15 @@ URL frontend: [web-236435.onrender.com](https://web-236435.onrender.com).
 
 - Static Site: `web-236435`, branch `main`, root directory `frontend`.
 - Build command: `npm ci && npm run build`; publish directory: `dist`.
-- `VITE_API_URL`: `https://api-236435.onrender.com` (đích backend dự kiến; cần kiểm chứng sau khi backend được tạo).
-- Frontend đã deploy Live và trả HTTP 200. Kiểm thử CRUD công khai đang chờ backend được cấu hình biến môi trường và deploy thành công.
+- `VITE_API_URL`: `https://api-236435.onrender.com`.
+- Frontend đã deploy Live và trả HTTP 200, kết nối API công khai và hiển thị dữ liệu Atlas.
+
+## 8. Backend trên Render
+
+URL API: [api-236435.onrender.com](https://api-236435.onrender.com); [kiểm tra health](https://api-236435.onrender.com/health).
+
+- Web Service `api-236435`, gói Free, Singapore, branch `main`, runtime Docker, root directory `backend`.
+- Biến riêng của service: `PORT`, `MONGODB_URI`, `CORS_ORIGIN=https://web-236435.onrender.com`.
+- MongoDB Atlas: Project `Project_236435_PhanTuanAnh`, cluster Free `Cluster0`, database `236435_PhanTuanAnh`, collection `foods`.
+- API công khai đã qua kiểm thử health, danh sách 5 món mẫu, chi tiết, tìm kiếm, thêm/sửa/xóa và mã lỗi 400/404/409.
+- Gói Free có thể cần thời gian khởi động lại sau khi không có truy cập.
