@@ -7,6 +7,7 @@ const rawApiUrl =
   'http://localhost:5000';
 
 const API_BASE_URL = String(rawApiUrl).replace(/\/+$/, '');
+const SUCCESS_TOAST_MS = 5000;
 
 const EMPTY_FORM = {
   foodId: '',
@@ -99,6 +100,18 @@ export default function App() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  useEffect(() => {
+    if (!successMsg) return;
+    const timer = window.setTimeout(() => setSuccessMsg(''), SUCCESS_TOAST_MS);
+    return () => window.clearTimeout(timer);
+  }, [successMsg]);
+
+  useEffect(() => {
+    if (!errorMsg) return;
+    const timer = window.setTimeout(() => setErrorMsg(''), SUCCESS_TOAST_MS);
+    return () => window.clearTimeout(timer);
+  }, [errorMsg]);
 
   const [searchInput, setSearchInput] = useState('');
   const [activeSearch, setActiveSearch] = useState('');
@@ -420,20 +433,22 @@ export default function App() {
 
       <main className="main-container">
         {errorMsg && (
-          <div className="alert alert-error" role="alert">
+          <div className="alert alert-error" role="alert" style={{ '--toast-duration': `${SUCCESS_TOAST_MS}ms` }}>
             <span>{errorMsg}</span>
             <button type="button" className="alert-close" onClick={() => setErrorMsg('')}>
               ×
             </button>
+            <span key={errorMsg} className="toast-progress" aria-hidden="true" />
           </div>
         )}
 
         {successMsg && (
-          <div className="alert alert-success" role="status">
+          <div className="alert alert-success" role="status" style={{ '--toast-duration': `${SUCCESS_TOAST_MS}ms` }}>
             <span>{successMsg}</span>
-            <button type="button" className="alert-close" onClick={() => setSuccessMsg('')}>
+            <button type="button" className="alert-close" aria-label="Đóng thông báo" onClick={() => setSuccessMsg('')}>
               ×
             </button>
+            <span key={successMsg} className="toast-progress" aria-hidden="true" />
           </div>
         )}
 

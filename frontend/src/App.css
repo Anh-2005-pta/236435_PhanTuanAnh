@@ -50,6 +50,8 @@ body {
 }
 
 .alert {
+  position: relative;
+  overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -562,6 +564,11 @@ body { background: #f3f5f2; }
   gap: 12px; color: #8c9f93; padding: 8px; font-size: 14px; text-align: center; }
 .image-fallback svg { width: 28px; height: 28px; flex-shrink: 0; }
 .image-large .image-fallback svg { width: 64px; height: 64px; }
+.alert .toast-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+  max-height: none; overflow: hidden; background: currentColor; opacity: .18; border-radius: 0 0 8px 8px;
+  transform-origin: left center; animation: toast-countdown var(--toast-duration) linear forwards; pointer-events: none; }
+@keyframes toast-countdown { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .alert .toast-progress { animation: none; } }
 @keyframes image-shimmer { to { background-position: -200% 0; } }
 @media (prefers-reduced-motion: reduce) { .image-loading { animation: none; } }
 .food-table { min-width: 800px; }
